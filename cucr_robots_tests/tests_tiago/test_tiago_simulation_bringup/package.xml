@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>test_tiago_simulation_bringup</name>
+  <version>0.0.0</version>
+  <description>The test_tiago_simulation_bringup package</description>
+
+  <maintainer email="silvas1@cardiff.ac.uk">Steven Alexander Silva Mendoza</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>test_tiago_common_bringup</depend>
+  <depend>test_tiago_desktop_bringup</depend>
+
+  <depend>tiago_gazebo</depend>
+
+  <export>
+
+  </export>
+</package>

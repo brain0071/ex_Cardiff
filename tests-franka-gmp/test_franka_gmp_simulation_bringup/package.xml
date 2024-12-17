@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>test_franka_gmp_simulation_bringup</name>
+  <version>0.0.0</version>
+  <description>The test_franka_gmp_simulation_bringup package</description>
+
+  <maintainer email="ddumanfurkan@gmail.com">davina18</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Franka_Simulation dependencies -->
+  <depend>franka_gazebo</depend>
+
+  <!-- Test Franka -->
+  <depend>test_franka_gmp_common_bringup</depend>
+  <depend>test_franka_gmp_desktop_bringup</depend>
+
+  <!-- others -->  
+  <depend>gazebo_ros_link_attacher</depend>
+  
+  <!-- Intel d435i -->
+  <depend>realsense2_camera</depend>
+  <depend>realsense2_description</depend>
+  <depend>realsense_gazebo_plugin</depend>
+
+  <export>
+
+  </export>
+</package>

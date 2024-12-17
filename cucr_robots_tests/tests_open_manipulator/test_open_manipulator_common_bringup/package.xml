@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>test_open_manipulator_common_bringup</name>
+  <version>0.0.0</version>
+  <description>The test_open_manipulator_common_bringup package</description>
+
+
+  <maintainer email="silvas1@cardiff.ac.uk">Steven Silva Mendoza</maintainer>
+
+
+  <license>TODO</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+
+  <depend>open_manipulator_description</depend>
+  <depend>open_manipulator_hw</depend>
+  <depend>open_manipulator_ikfast_plugin</depend>
+  <depend>open_manipulator_moveit_config</depend>
+  <depend>open_manipulator_controllers</depend>
+  <depend>robotis_manipulator</depend>
+
+  <export>
+
+  </export>
+</package>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="twist_topic" default="/stretch_diff_drive_controller/cmd_vel" />
+
+  <include file="$(find stretch_core)/launch/teleop_twist.launch">
+      <arg name="teleop_type" value="keyboard" />
+      <arg name="linear" value="1.0" />
+      <arg name="angular" value="2.0" />
+      <arg name="twist_topic" value="$(arg twist_topic)" />
+  </include>
+</launch>

@@ -1,0 +1,167 @@
+<launch>
+    <!-- Features of Stretch2 simulation -->
+    <arg name="moveit" default="false"/>
+	<arg name="mapping" default="false" />
+	<arg name="localization" default="false" />
+	<arg name="navigation" default="false" />
+
+    <!-- initial position of robot for localization testing -->
+	<arg name="x_pose" default="0.0"/>
+	<arg name="y_pose" default="1.0"/>
+
+	<!-- By default, we are not in debug mode -->
+    <arg name="debug" default="false" />
+    <!-- Gazebo specific options -->
+    <arg name="paused" default="true"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="rviz" default="true"/>
+    <arg name="gpu_lidar" default="false"/>
+    <arg name="visualize_lidar" default="false"/>
+    <arg name="world" default="$(find cucr_worlds_hospital)/worlds/hospital.world"/>
+    <arg name="model" value="$(find stretch_gazebo)/urdf/stretch_gazebo_standard_gripper.urdf.xacro"/>
+
+    <!-- Localization specific options -->
+    <arg name="map_file" default="$(find cucr_worlds_hospital)/map/hospital.yaml"/>
+
+
+	<!-- !Gazebo simulation -->
+    <include file="$(find test_stretch2_simulation_bringup)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world)" />
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+    
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model) gpu_lidar:=$(arg gpu_lidar) visualize_lidar:=$(arg visualize_lidar)" />
+    
+    <!-- push robot_description to factory and spawn robot in gazebo -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args=" -urdf -model robot -param robot_description -x $(arg x_pose) -y $(arg y_pose) -J joint_lift 0.2 -J joint_wrist_yaw 3.14" respawn="false" output="screen" />
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher">
+        <param name="publish_frequency" type="double" value="50.0" />
+    </node>
+
+    <rosparam command="load"
+                file="$(find stretch_gazebo)/config/joints.yaml" 
+                ns="stretch_joint_state_controller" />
+
+    <rosparam command="load"
+                file="$(find stretch_gazebo)/config/drive_config.yaml"
+                ns="stretch_diff_drive_controller" />
+    
+    <rosparam command="load"
+                file="$(find stretch_gazebo)/config/head.yaml" />
+
+    <rosparam command="load"
+                file="$(find stretch_gazebo)/config/arm.yaml" />
+
+    <rosparam command="load"
+                file="$(find stretch_gazebo)/config/gripper.yaml" />
+
+    <node name="stretch_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+                args="stretch_joint_state_controller stretch_diff_drive_controller stretch_arm_controller stretch_head_controller stretch_gripper_controller" />
+
+    <node name="publish_ground_truth_odom" pkg="test_stretch2_simulation_bringup" type="publish_ground_truth_odom.py" output="screen"/>
+
+
+	<!-- !MoveIt! -->
+	<group if="$(arg moveit)">        
+        <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
+        <include file="$(find stretch_moveit_config)/launch/move_group.launch">
+            <arg name="allow_trajectory_execution" value="true"/>
+            <arg name="info" value="true"/>
+            <arg name="debug" value="$(arg debug)"/>
+            <arg name="load_robot_description" value="false"/>
+        </include>
+
+        <!-- Option of rviz for Moveit -->
+        <group unless="$(arg mapping)">
+            <group unless="$(arg navigation)">
+                <node name="rviz_moveit" pkg="rviz" type="rviz" output="log" args="-d $(find test_stretch2_simulation_bringup)/rviz/moveit.rviz" if="$(arg rviz)" />
+            </group>
+	    </group>
+	</group>
+
+
+	<!-- !Mapping -->
+	<group if="$(arg mapping)">
+		<node pkg="gmapping" type="slam_gmapping" name="gmapping_record_map" output="screen" >
+            <param name="map_update_interval" value="2.0"/> 
+        </node>
+
+        <!-- Option of rviz for Mapping -->
+        <node name="rviz_mapping" pkg="rviz" type="rviz" output="log" args="-d $(find test_stretch2_simulation_bringup)/rviz/mapping.rviz" if="$(arg rviz)" />
+	</group>
+
+
+	<!-- !Localization -->
+	<group unless="$(arg mapping)">
+		<group if="$(arg localization)">
+			<!-- Map server -->
+			<node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+			<!-- start amcl -->
+			<node pkg="amcl" type="amcl" name="amcl" output="screen">
+                <!-- Publish scans from best pose at a max of 10 Hz -->
+                <param name="odom_model_type" value="diff"/>
+                <param name="odom_alpha5" value="0.1"/>
+                <param name="gui_publish_rate" value="-1.0"/>
+                <param name="laser_max_beams" value="180"/>
+                <param name="min_particles" value="100"/>
+                <param name="max_particles" value="5000"/>
+                <param name="kld_err" value="0.01"/>
+                <param name="kld_z" value="0.99"/>
+                <param name="odom_alpha1" value="0.1"/>
+                <param name="odom_alpha2" value="0.1"/>
+                <!-- translation std dev, m -->
+                <param name="odom_alpha3" value="0.1"/>
+                <param name="odom_alpha4" value="0.1"/>
+                <param name="laser_z_hit" value="0.95"/>
+                <param name="laser_z_short" value="0.1"/>
+                <param name="laser_z_max" value="0.05"/>
+                <param name="laser_z_rand" value="0.05"/>
+                <param name="laser_sigma_hit" value="0.2"/>
+                <param name="laser_lambda_short" value="0.1"/>
+                <param name="laser_model_type" value="likelihood_field"/>
+                <!-- <param name="laser_model_type" value="beam"/> -->
+                <param name="laser_likelihood_max_dist" value="2.0"/>
+                <param name="update_min_d" value="0.2"/>
+                <param name="update_min_a" value="0.2"/>
+                <param name="odom_frame_id" value="odom"/>
+                <param name="base_frame_id" value="base_link" />
+                <param name="global_frame_id" value="map" />
+                <param name="resample_interval" value="1"/>
+                <param name="transform_tolerance" value="0.1"/>
+                <param name="recovery_alpha_slow" value="0.0"/>
+                <param name="recovery_alpha_fast" value="0.0"/>
+                <!-- Initial pose -->
+                <param name="initial_pose_x" value="$(arg x_pose)"/>
+                <param name="initial_pose_y" value="$(arg y_pose)"/>
+            </node>
+
+            <!-- !Navigation -->
+			<group if="$(arg navigation)">
+                <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+                    <rosparam file="$(find stretch_navigation)/config/common_costmap_params.yaml" command="load" ns="global_costmap" />
+                    <rosparam file="$(find stretch_navigation)/config/common_costmap_params.yaml" command="load" ns="local_costmap" />
+                    <rosparam file="$(find stretch_navigation)/config/local_costmap_params.yaml" command="load" />
+                    <rosparam file="$(find stretch_navigation)/config/global_costmap_params_withmap.yaml" command="load" />
+                    <rosparam file="$(find stretch_navigation)/config/base_local_planner_params.yaml" command="load" />
+                    <remap from="/cmd_vel" to="/stretch_diff_drive_controller/cmd_vel" />
+                </node>
+
+                <!-- Option of rviz for navigation -->
+                <node name="rviz_navigation" pkg="rviz" type="rviz" output="log" args="-d $(find test_stretch2_simulation_bringup)/rviz/navigation.rviz" if="$(arg rviz)" />
+			</group>
+
+            <group unless="$(arg navigation)">
+                <!-- Option of rviz for localization -->
+                <node name="rviz_navigation" pkg="rviz" type="rviz" output="log" args="-d $(find test_stretch2_simulation_bringup)/rviz/localization.rviz" if="$(arg rviz)" />
+            </group>
+		</group>
+	</group>
+</launch>

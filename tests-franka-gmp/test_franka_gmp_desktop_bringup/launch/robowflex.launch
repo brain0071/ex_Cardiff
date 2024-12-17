@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="use_rviz" default="true" />
+  <arg name="debug" default="false" />
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+
+  <arg name="rviz_tutorial" default="false" />
+  <arg name="rviz_config" default="$(find test_franka_gmp_common_bringup)/parameters/tools/rviz/robowflex.rviz" />
+
+  <arg if="$(eval rviz_config=='')" name="command_args" value="" />
+  <arg if="$(eval rviz_config!='' and not rviz_tutorial)" name="command_args" value="-d $(arg rviz_config)" />
+  <arg if="$(eval rviz_tutorial)" name="command_args" value="-d $(dirname)/moveit_empty.rviz" />
+
+  <!-- <include file="$(find panda_moveit_config)/launch/move_group.launch" pass_all_args="true">
+    <arg name="allow_trajectory_execution" value="true" />
+    <param name="execution_duration_monitoring" value="true" />
+    <arg name="info" value="true" />
+  </include> -->
+  
+  <node name="$(anon rviz)" launch-prefix="$(arg launch_prefix)" pkg="rviz" type="rviz" respawn="false"
+        args="$(arg command_args)" output="screen">
+  </node>
+
+  <!-- quick world fix
+  <node pkg="tf" type="static_transform_publisher" name="world_dummy_to_world" args="0 0 0.725 0 0 0 /world_dummy /world 100"/> -->
+
+</launch>

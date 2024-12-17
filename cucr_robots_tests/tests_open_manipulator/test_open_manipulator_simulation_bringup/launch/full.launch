@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<launch>
+
+    <include file="$(find open_manipulator_hw)/launch/open_manipulator_gazebo.launch"/>
+
+    <!-- controller utils -->
+    <include file="$(find open_manipulator_hw)/launch/controller_utils.launch"/>
+
+    <!-- joint_trajectory_controller -->
+
+    <rosparam file="$(find open_manipulator_controllers)/config/joint_trajectory_controller_gazebo.yaml" command="load"/>
+
+    <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false" output="screen" args="spawn arm_controller"/>
+    <node name="gripper_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false" output="screen" args="spawn gripper_controller"/>
+
+    <!-- startup move_group related -->
+    <include file="$(find open_manipulator_moveit_config)/launch/move_group.launch"/>
+</launch>

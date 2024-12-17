@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>test_stretch2_hardware_bringup</name>
+  <version>0.0.0</version>
+  <description>The test_stretch2_hardware_bringup package</description>
+
+  <maintainer email="millan-normans@cardiff.ac.uk">smn</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+
+  <!-- Test Stretch 2 -->
+  <depend>test_stretch2_common_bringup</depend>
+
+</package>

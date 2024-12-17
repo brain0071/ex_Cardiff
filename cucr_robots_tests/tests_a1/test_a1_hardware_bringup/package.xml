@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>test_a1_hardware_bringup</name>
+  <version>0.0.0</version>
+  <description>The test_a1_hardware_bringup package</description>
+
+  <maintainer email="silvas1@cardiff.ac.uk">Steven Silva Mendoza</maintainer>
+
+  <license>MIT License</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>liblcm-dev</buildtool_depend>
+
+  <!-- a1 dependencies -->
+  <depend>a1_driver</depend>
+  <depend>a1_pose</depend>
+  <depend>unitree_legged_real</depend>
+  <depend>unitree_legged_sdk</depend>
+
+
+  <!-- imu deps -->
+  <depend>imu_transformer</depend>
+
+  <export>
+
+  </export>
+</package>

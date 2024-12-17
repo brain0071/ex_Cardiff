@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="cmd_vel" default="/a1_gazebo/cmd_vel"/>
+
+    <include file="$(find champ_teleop)/launch/teleop.launch">
+        <arg name="cmd_vel" default="$(arg cmd_vel)"/>
+    </include>
+</launch>

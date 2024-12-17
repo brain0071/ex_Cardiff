@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
+
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+
+  <xacro:arg name="arm_id" default="panda" />
+
+  <xacro:franka_robot arm_id="$(arg arm_id)"
+                      joint_limits="${xacro.load_yaml('$(find franka_description)/robots/panda/joint_limits.yaml')}">
+  </xacro:franka_robot>
+
+    <!--Camera link plugin-->
+  <xacro:include filename="$(find test_franka_simulation_bringup)/urdf/_d435i.urdf.xacro"/>
+  <xacro:sensor_d435i parent="panda_link8">
+      <!--Position of the camera wrt to link 8 -->
+      <origin xyz="0.02 -0.035 0.05" rpy="${-pi/4} ${-pi/2} ${pi}" />
+  </xacro:sensor_d435i>
+  <!--end for camera link-->
+
+</robot>
